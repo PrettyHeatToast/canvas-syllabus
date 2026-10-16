@@ -101,6 +101,12 @@ async function clean(container, { resolveMedia, stats }) {
     list.replaceWith(...lis[0].childNodes);
   });
 
+  // Een <b>/<strong> die hele blokken omsluit (p, lijst, tabel, kop, …) is een editor-artefact (bv. een niet gesloten
+  // tag of een Google-Docs-wrapper) en maakt alles erin vet; in Canvas zelf ziet de cursus er niet zo uit. Ontpakken, binnenste eerst.
+  [...container.querySelectorAll('b,strong')].reverse().forEach((bold) => {
+    if (bold.querySelector('p,ul,ol,table,div,h1,h2,h3,h4,h5,h6,blockquote,pre,hr')) bold.replaceWith(...bold.childNodes);
+  });
+
   const imgs = [...container.querySelectorAll('img')];
   await Promise.all(imgs.map(async (img) => {
     stats.images++;
