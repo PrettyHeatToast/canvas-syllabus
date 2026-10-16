@@ -1,0 +1,25 @@
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--surface-page);color:var(--text-body);font-family:var(--font-sans);font-size:var(--text-body);line-height:var(--lh-body);font-weight:var(--fw-regular);-webkit-font-smoothing:antialiased;text-wrap:pretty}
+h1,h2,h3,h4,h5,h6{margin:0;font-family:var(--font-sans);font-weight:var(--fw-semibold);line-height:var(--lh-heading);letter-spacing:var(--tracking-tight);text-wrap:balance;color:var(--text-body)}
+h1{font-size:var(--text-4xl);line-height:var(--lh-tight)}
+h2{font-size:var(--text-3xl)}
+h3{font-size:var(--text-2xl)}
+h4{font-size:var(--text-xl);letter-spacing:var(--tracking-normal)}
+p{margin:0 0 var(--space-4);max-width:var(--measure)}
+strong,b{font-weight:var(--fw-semibold)}
+a{color:var(--text-link);text-decoration:underline;text-underline-offset:.15em;text-decoration-thickness:1px;transition:var(--transition-control)}
+a:hover{color:var(--text-link-hover);text-decoration-thickness:2px}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+ul{margin:0 0 var(--space-4);padding-left:1.15em;list-style:disc}
+ul ul{list-style:"‒  ";margin-top:var(--space-2)}
+li{margin-bottom:var(--space-2);max-width:var(--measure)}
+blockquote{margin:0;font-family:var(--font-serif);font-size:var(--text-xl);line-height:var(--lh-snug)}
+small{font-size:var(--text-sm)}
+hr{border:0;border-top:var(--border-width) solid var(--border-hairline);margin:var(--space-6) 0}
+table{border-collapse:collapse;width:100%}
+th{text-align:left;font-weight:var(--fw-semibold);border-bottom:var(--border-width-strong) solid var(--border-strong);padding:var(--space-3) var(--space-3) var(--space-3) 0}
+td{border-bottom:var(--border-width) solid var(--border-hairline);padding:var(--space-3) var(--space-3) var(--space-3) 0;vertical-align:top}
+::selection{background:var(--accent);color:var(--accent-contrast)}
+.ah-serif{font-family:var(--font-serif)}
+.ah-lead{font-size:var(--text-lg);line-height:var(--lh-snug);max-width:var(--measure-narrow)}
+.ah-container{max-width:var(--container-lg);margin-inline:auto;padding-inline:var(--gutter)}

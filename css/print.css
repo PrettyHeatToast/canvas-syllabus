@@ -1,0 +1,29 @@
+/* Paginering (Paged.js): A4, kop- en voetteksten, inhoudsopgave met paginanummers.
+   Let op: Paged.js haalt de wrapper-div weg, dus hier geen .syl-selectors. */
+@page {
+  size: A4;
+  margin: 22mm 18mm 22mm 18mm;
+  @top-left { content: string(modtitle); font: 8.5pt "Source Sans 3", Arial, sans-serif; color: #808080; }
+  @bottom-left { font: 8.5pt "Source Sans 3", Arial, sans-serif; color: #808080; }
+  @bottom-right { content: counter(page); font: 9pt "Source Sans 3", Arial, sans-serif; color: #4d4d4d; }
+}
+@page cover {
+  margin: 20mm;
+  @top-left { content: none; }
+  @bottom-left { content: none; }
+  @bottom-right { content: none; }
+}
+@page toc {
+  @top-left { content: none; }
+}
+
+.cover { page: cover; break-after: page; }
+.toc { page: toc; break-after: page; }
+section.chapter { break-before: page; }
+
+/* Paged.js verwerkt string-set, break-* en target-counter op de content-DOM: daarom hier zonder .syl/.pagedjs_page_content-prefix. */
+h1.module-title { string-set: modtitle content(text); }
+.item-body img { max-height: 225mm; object-fit: contain; }
+
+.toc a { display: flex; align-items: baseline; border-bottom: 1px dotted #c6c6c6; }
+.toc a::after { content: target-counter(attr(href), page); margin-left: auto; padding-left: 1em; }

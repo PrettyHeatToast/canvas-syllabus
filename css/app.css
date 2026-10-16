@@ -1,0 +1,86 @@
+/* Arteveldehogeschool huisstijl: wit eerst, zwarte tekst, één accent (oranje), blauwe focus. */
+:root { --bg:var(--ah-grey-100); --panel:var(--ah-white); --line:var(--ah-grey-300); --text:var(--ah-black); --muted:var(--ah-grey-700); --accent-d:#d9701a; --ease:cubic-bezier(.2,0,.2,1); }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { margin: 0; font: 15px/1.45 var(--font-sans); background: var(--bg); color: var(--text); display: flex; flex-direction: column; }
+button, input, select { font: inherit; color: inherit; }
+button { background: var(--panel); border: 1px solid var(--ah-black); border-radius: 4px; padding: 5px 12px; cursor: pointer; font-weight: 600; transition: background 160ms var(--ease), border-color 160ms var(--ease), color 160ms var(--ease); }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+button:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 10%, white); border-color: var(--accent); }
+button:disabled { background: var(--ah-grey-100); border-color: var(--ah-grey-300); color: var(--ah-grey-300); cursor: default; }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+button.primary:hover:not(:disabled) { background: var(--accent-d); border-color: var(--accent-d); color: #fff; }
+input:not([type=checkbox]):not([type=file]) { width: 100%; padding: 5px 8px; border: 1px solid var(--ah-grey-500); border-radius: 4px; background: var(--panel); }
+
+.topbar { display: flex; align-items: center; gap: 16px; padding: 10px 16px; background: var(--ah-white); border-bottom: 1px solid var(--line); border-top: 4px solid var(--accent); }
+.brand-logo { height: 34px; width: auto; order: 3; }
+.topbar h1 { font-size: 18px; margin: 0; font-weight: 600; letter-spacing: 0; flex: 1; order: 1; }
+.topbar-actions { display: flex; gap: 8px; order: 2; }
+
+.start { margin: 8vh auto; max-width: 560px; padding: 0 16px; text-align: center; }
+.dropzone { display: flex; flex-direction: column; gap: 6px; padding: 48px 24px; border: 2px dashed var(--ah-grey-500); border-radius: 8px; background: var(--panel); cursor: pointer; }
+.dropzone.over, .dropzone:hover { border-color: var(--accent); }
+.dropzone strong { font-size: 20px; font-weight: 600; }
+.dropzone small, .hint, .load-status { color: var(--muted); }
+
+.editor { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(340px, 1fr) minmax(320px, 1fr); gap: 12px; padding: 12px; }
+.pane { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; min-height: 0; display: flex; flex-direction: column; }
+.tree-tools { padding: 10px; border-bottom: 1px solid var(--line); display: grid; gap: 8px; }
+.btn-row, .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button { padding: 2px 8px; font-size: 13px; }
+.chips button.off { background: var(--ah-grey-100); border-color: var(--ah-grey-300); color: var(--ah-grey-500); }
+.summary { color: var(--muted); font-size: 13px; }
+.tree { overflow: auto; padding: 6px; flex: 1; }
+
+.module { border: 1px solid var(--line); border-radius: 4px; margin-bottom: 6px; background: var(--bg); }
+.module-head, .item { display: flex; align-items: center; gap: 6px; padding: 5px 6px; }
+.module-head { font-weight: 600; }
+.module-head .title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.count { color: var(--muted); font-weight: 400; font-size: 12px; }
+.handle { cursor: grab; color: var(--muted); user-select: none; }
+.toggle { border: 0; background: none; padding: 0 4px; }
+.mini { padding: 0 6px; border: 0; background: none; color: var(--muted); }
+.items { min-height: 8px; padding: 0 0 4px 22px; }
+.module.collapsed .items { display: none; }
+.item { background: var(--panel); border: 1px solid transparent; border-radius: 4px; }
+.item:hover { border-color: var(--line); }
+.item.active { border-color: var(--accent); }
+.item.excluded .title { opacity: .5; text-decoration: line-through; }
+.item .title { flex: 1; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item .meta { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.item.filtered-out, .module.filtered-out { display: none; }
+.sortable-ghost { opacity: .4; }
+.tree.searching .module.collapsed .items { display: block; }
+
+.side-pane { overflow: hidden; }
+.tabs { display: flex; border-bottom: 1px solid var(--line); }
+.tabs button { flex: 1; border: 0; border-radius: 0; background: none; padding: 9px; }
+.tabs button.active { border-bottom: 4px solid var(--accent); }
+.tab { overflow: auto; padding: 12px; flex: 1; display: grid; gap: 10px; align-content: start; }
+.tab label { display: grid; gap: 3px; font-size: 13px; color: var(--muted); }
+.tab label.chk { display: flex; gap: 8px; align-items: center; color: var(--text); }
+fieldset { border: 1px solid var(--line); border-radius: 4px; display: grid; gap: 6px; }
+.preview { background: #fff; color: #000; padding: 16px; border-radius: 6px; border: 1px solid var(--line); }
+.preview h2.item-title { margin-top: 0; }
+
+/* Export-overlay */
+/* De export is altijd licht, ook als de app in dark mode staat. */
+.export-overlay { position: fixed; inset: 0; z-index: 10; background: var(--ah-grey-700); overflow: auto; color-scheme: light; color: #000; --bg:#f2f2f2; --panel:#fff; --line:#c6c6c6; --text:#000; --muted:#4d4d4d; }
+.export-overlay .pagedjs_page, .export-overlay .pagedjs_page_content { background: #fff; color: #000; }
+.export-bar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: #fff; border-top: 4px solid var(--accent); color: #000; }
+.export-bar span { flex: 1; }
+.export-tip { margin: 8px auto; max-width: 780px; padding: 0 16px; color: #fff; font-size: 13px; text-align: center; }
+@media screen {
+  .pagedjs_pages { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 8px 0 32px; }
+  .pagedjs_page { background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.35); }
+}
+@media print {
+  body.exporting > :not(#export-overlay) { display: none !important; }
+  body.exporting { display: block; background: none; }
+  .export-overlay { position: static !important; overflow: visible !important; background: none !important; }
+  .export-bar, .export-tip { display: none !important; }
+  .pagedjs_pages { display: block !important; padding: 0 !important; }
+  .pagedjs_page { box-shadow: none !important; margin: 0 !important; }
+}
+@media (max-width: 800px) { .editor { grid-template-columns: 1fr; overflow: auto; } }

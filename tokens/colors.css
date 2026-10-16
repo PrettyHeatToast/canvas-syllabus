@@ -1,0 +1,72 @@
+:root{
+/* ── Hoofdkleuren — white is the primary colour of every design, black is the text colour ── */
+--ah-white:#FFFFFF;
+--ah-black:#000000;
+
+/* ── Steunkleuren (accent colours). Orange is the default; the others are
+      interest-domain bound and only used inside an Arteveldehogeschool context. ── */
+--ah-orange:#F58732;   /* exact, sampled from the logo */
+--ah-blue:#00A5D9;     /* exact, sampled from the logo */
+--ah-green:#5AB946;    /* exact, sampled from the logo */
+--ah-red:#E5372E;      /* APPROXIMATE — confirm against the huisstijl PDF */
+--ah-purple:#7B4B9B;   /* APPROXIMATE — confirm against the huisstijl PDF */
+--ah-fuchsia:#D6247C;  /* APPROXIMATE — confirm against the huisstijl PDF */
+
+/* ── Large solid-area tints. Only for invasive full-bleed panels (section dividers,
+      brochure intermediate pages). 40 % for blue/purple/green/fuchsia, 60 % for orange/red. ── */
+--ah-orange-60:#F9B77E;
+--ah-red-60:#EE7F79;
+--ah-blue-40:#99DBF0;
+--ah-green-40:#BCE3B5;
+--ah-purple-40:#C9B7D7;
+--ah-fuchsia-40:#EFA7CB;
+
+/* ── Artevelde Academy variants — more businesslike, same family.
+      APPROXIMATE: derived from the corporate steunkleuren, pending the Academy swatch sheet. ── */
+--ah-academy-orange:#D9702A;
+--ah-academy-blue:#0B7EA8;
+--ah-academy-green:#4A8F3C;
+--ah-academy-red:#B32D26;
+--ah-academy-purple:#5E3A77;
+--ah-academy-fuchsia:#A81C61;
+--ah-academy-sand:#EBDCC6;
+--ah-academy-mint:#CFE3DB;
+
+/* ── Neutrals. Used sparingly: rules, disabled states, subtle surfaces. Never as body text. ── */
+--ah-grey-900:#1A1A1A;
+--ah-grey-700:#4D4D4D;
+--ah-grey-500:#808080;
+--ah-grey-300:#C6C6C6;
+--ah-grey-200:#E2E2E2;
+--ah-grey-100:#F2F2F2;
+
+/* ── Semantic aliases ── */
+--accent:var(--ah-orange);
+--accent-contrast:var(--ah-white);
+--accent-tint:var(--ah-orange-60);
+
+--surface-page:var(--ah-white);
+--surface-card:var(--ah-white);
+--surface-muted:var(--ah-grey-100);
+--surface-inverse:var(--ah-black);
+
+--text-body:var(--ah-black);
+--text-muted:var(--ah-grey-700);
+--text-inverse:var(--ah-white);
+--text-accent:var(--accent);
+--text-link:var(--ah-blue);
+--text-link-hover:var(--ah-black);
+
+--border-hairline:var(--ah-grey-300);
+--border-strong:var(--ah-black);
+--focus-ring:var(--ah-blue);
+}
+
+/* Interest-domain scopes. Set on any subtree to retheme the single accent colour.
+   Never combine two accents in one layout. */
+[data-accent="orange"]{--accent:var(--ah-orange);--accent-tint:var(--ah-orange-60);--accent-contrast:var(--ah-white)}
+[data-accent="blue"]{--accent:var(--ah-blue);--accent-tint:var(--ah-blue-40);--accent-contrast:var(--ah-white)}
+[data-accent="green"]{--accent:var(--ah-green);--accent-tint:var(--ah-green-40);--accent-contrast:var(--ah-white)}
+[data-accent="red"]{--accent:var(--ah-red);--accent-tint:var(--ah-red-60);--accent-contrast:var(--ah-white)}
+[data-accent="purple"]{--accent:var(--ah-purple);--accent-tint:var(--ah-purple-40);--accent-contrast:var(--ah-white)}
+[data-accent="fuchsia"]{--accent:var(--ah-fuchsia);--accent-tint:var(--ah-fuchsia-40);--accent-contrast:var(--ah-white)}

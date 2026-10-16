@@ -1,0 +1,12 @@
+:root{
+/* White space, not shadow, does the separating. Shadows stay soft and rare —
+   reserved for elements that genuinely float (menus, dialogs). */
+--shadow-none:none;
+--shadow-sm:0 1px 2px rgba(0,0,0,.06);
+--shadow-md:0 2px 8px rgba(0,0,0,.08);
+--shadow-lg:0 8px 28px rgba(0,0,0,.12);
+--shadow-focus:0 0 0 3px color-mix(in srgb,var(--focus-ring) 45%,transparent);
+
+/* Protection gradient for text set on photography (never a white box). */
+--scrim-bottom:linear-gradient(to top,rgba(0,0,0,.72) 0%,rgba(0,0,0,.35) 45%,rgba(0,0,0,0) 100%); /* @kind shadow */
+}

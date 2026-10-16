@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Canvas naar Syllabus</title>
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="stylesheet" href="tokens/fonts.css">
+  <link rel="stylesheet" href="tokens/colors.css">
+  <link rel="stylesheet" href="tokens/typography.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/content.css">
+  <script>window.PagedConfig = { auto: false };</script>
+  <script src="vendor/jszip.min.js"></script>
+  <script src="vendor/Sortable.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <img class="brand-logo" src="assets/logo-primary.png" alt="Arteveldehogeschool">
+    <h1>Canvas naar Syllabus</h1>
+    <div class="topbar-actions" id="topActions" hidden>
+      <button id="btnSave" title="Selectie en volgorde als JSON-bestand bewaren">Selectie bewaren</button>
+      <button id="btnLoad" title="Een eerder bewaarde selectie laden">Selectie laden</button>
+      <button id="btnNew">Ander bestand</button>
+      <button id="btnExport" class="primary">Exporteer PDF</button>
+    </div>
+    <input type="file" id="selectionFile" accept=".json,application/json" hidden>
+  </header>
+
+  <main id="start" class="start">
+    <label id="dropzone" class="dropzone">
+      <input type="file" id="epubFile" accept=".epub,application/epub+zip" hidden>
+      <strong>Sleep hier een Canvas-EPUB naartoe</strong>
+      <span>of klik om een bestand te kiezen</span>
+      <small>Alles gebeurt lokaal in je browser. Er wordt niets geüpload.</small>
+    </label>
+    <p id="loadStatus" class="load-status" hidden></p>
+    <p class="hint">Canvas: <em>Cursus → Instellingen → Cursusinhoud exporteren → ePub</em>.</p>
+  </main>
+
+  <main id="editor" class="editor" hidden>
+    <section class="pane tree-pane">
+      <div class="tree-tools">
+        <input type="search" id="search" placeholder="Zoek in titels…">
+        <div class="btn-row">
+          <button id="btnAll">Alles</button>
+          <button id="btnNone">Niets</button>
+          <button id="btnExpand">Alles open</button>
+          <button id="btnCollapse">Alles dicht</button>
+        </div>
+        <div id="chips" class="chips" title="Klik om alle items van dit soort aan/uit te zetten"></div>
+        <div id="summary" class="summary"></div>
+      </div>
+      <div id="tree" class="tree"></div>
+    </section>
+
+    <section class="pane side-pane">
+      <nav class="tabs">
+        <button data-tab="settings" class="active">Instellingen</button>
+        <button data-tab="preview">Voorbeeld</button>
+      </nav>
+      <div id="tab-settings" class="tab">
+        <label>Titel <input id="s-title"></label>
+        <label>Ondertitel <input id="s-subtitle"></label>
+        <label>Academiejaar <input id="s-year" placeholder="2026-2027"></label>
+        <label>Opleiding / lector <input id="s-author"></label>
+        <label>Logo <input type="file" id="s-logo" accept="image/*"></label>
+        <button id="btnClearLogo" hidden>Logo verwijderen</button>
+        <fieldset>
+          <legend>Opmaak</legend>
+          <label class="chk"><input type="checkbox" id="s-cover"> Voorblad</label>
+          <label class="chk"><input type="checkbox" id="s-toc"> Inhoudsopgave</label>
+          <label class="chk"><input type="checkbox" id="s-tocItems"> Ook items in inhoudsopgave</label>
+          <label class="chk"><input type="checkbox" id="s-chapterPageBreak"> Elk hoofdstuk op nieuwe pagina</label>
+          <label class="chk"><input type="checkbox" id="s-itemPageBreak"> Elk item op nieuwe pagina</label>
+          <label class="chk"><input type="checkbox" id="s-pageNumbers"> Paginanummers</label>
+          <label class="chk"><input type="checkbox" id="s-stripEmoji"> Emoji uit titels weglaten</label>
+          <label class="chk"><input type="checkbox" id="s-showDetails"> Opdrachtdetails tonen (punten e.d.)</label>
+        </fieldset>
+      </div>
+      <div id="tab-preview" class="tab" hidden>
+        <p class="hint" id="previewHint">Klik links op een item om een voorbeeld te zien.</p>
+        <div id="preview" class="syl preview"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="export-overlay" class="export-overlay" hidden>
+    <div class="export-bar" id="export-bar">
+      <button id="btnCloseExport">← Terug</button>
+      <span id="exportStatus">Bezig…</span>
+      <button id="btnPrint" class="primary" disabled>Opslaan als PDF</button>
+    </div>
+    <p class="export-tip" id="export-tip">Kies in het printvenster: bestemming <b>Opslaan als PDF</b>, papierformaat <b>A4</b>, marges <b>Geen</b> en zet <b>Achtergrondafbeeldingen</b> aan.</p>
+    <div id="pages"></div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
