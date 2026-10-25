@@ -16,7 +16,7 @@ Je selectie wordt automatisch bewaard in je browser per cursus. Met **Selectie b
 
 ## Hosten op GitHub Pages
 
-De site is volledig statisch (geen build). Alle libraries staan in `vendor/`; alleen de lettertypen (Source Sans 3, via `tokens/fonts.css`) komen van Google Fonts. De huisstijl staat in `tokens/` en `assets/`.
+De site is volledig statisch (geen build). Alle libraries staan in `vendor/`; alleen de lettertypen (Source Sans 3, via `tokens/fonts.css`) komen van Google Fonts. De huisstijl staat in `tokens/`.
 
 1. Zet de bestanden in een GitHub-repository (`index.html` in de root).
 2. *Settings → Pages → Build and deployment → Deploy from a branch → `main` / root*.
