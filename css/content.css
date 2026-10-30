@@ -33,3 +33,10 @@
 .syl .toc-module { font-weight: 600; margin-top: 0.7em; }
 .syl .toc-item { padding-left: 1.2em; font-size: 9.5pt; }
 .syl .toc a { color: inherit; }
+
+/* Bijlagen uit de zip. */
+.syl .file-ref[data-att-path] { font-weight: 600; }
+.syl .attachment { margin: 0 0 1em; }
+.syl .att-name { font-weight: 600; margin: 1em 0 0.3em; }
+.syl .attachment .att-page { display: block; width: 100%; height: auto; margin: 0 0 4mm; break-inside: avoid; }
+.syl .attachment .att-slide { position: relative; overflow: hidden; margin: 0 auto 4mm; border: 1px solid #c6c6c6; break-inside: avoid; }

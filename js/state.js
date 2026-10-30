@@ -1,4 +1,6 @@
 // Centrale toestand: cursus, volgorde, selectie en instellingen (met bewaren in localStorage).
+import { linkAttachments } from './attachments.js';
+
 export const DEFAULT_SETTINGS = {
   title: '',
   subtitle: 'Syllabus',
@@ -15,7 +17,7 @@ export const DEFAULT_SETTINGS = {
   pageNumbers: true,
 };
 
-export const state = { course: null, modules: [], settings: { ...DEFAULT_SETTINGS } };
+export const state = { course: null, zip: null, modules: [], settings: { ...DEFAULT_SETTINGS } };
 
 const listeners = new Set();
 export const onChange = (fn) => listeners.add(fn);
@@ -42,7 +44,10 @@ export function serialize() {
     settings: state.settings,
     modules: state.modules.map((m) => ({
       id: m.id, title: m.title,
-      items: m.items.map((i) => ({ id: i.uid, title: i.title, included: i.included })),
+      items: m.items.map((i) => ({
+        id: i.uid, title: i.title, included: i.included,
+        attachments: i.attachments.map(({ name, path, included }) => ({ name, path, included })),
+      })),
     })),
   };
 }
@@ -54,6 +59,16 @@ export function setCourse(course) {
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(storageKey())); } catch { /* negeren */ }
   if (saved) applySaved(saved);
+  if (state.zip) linkAttachments(allItems(), state.zip);
+  changed({ structural: true });
+}
+
+export function setZip(zip) {
+  state.zip = zip;
+  if (!zip || !state.course) return;
+  linkAttachments(allItems(), zip);
+  // Open de hoofdstukken waar nog een bestand gekozen moet worden.
+  state.modules.forEach((m) => { if (m.items.some((i) => i.attachments.some((a) => !a.path))) m.collapsed = false; });
   changed({ structural: true });
 }
 
@@ -82,6 +97,10 @@ export function applySaved(saved) {
       if (!it) continue;
       used.add(it);
       it.included = !!si.included;
+      it.attachments.forEach((a) => {
+        const sa = si.attachments?.find((x) => x.name === a.name);
+        if (sa) { a.path = sa.path; a.included = sa.included; }
+      });
       mod.items.push(it);
     }
   }

@@ -50,6 +50,12 @@ input:not([type=checkbox]):not([type=file]) { width: 100%; padding: 5px 8px; bor
 .item .title { flex: 1; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .item .meta { color: var(--muted); font-size: 11px; white-space: nowrap; }
 .item.filtered-out, .module.filtered-out { display: none; }
+.item { flex-wrap: wrap; }
+.att-list { flex-basis: 100%; padding-left: 26px; display: grid; gap: 2px; }
+.att-row { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 2px 6px; font-size: 13px; }
+.att-row .title { cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.att-row select { grid-column: 2; min-width: 0; width: 100%; font-size: 12px; }
+.att-row.missing .title { color: #c2410c; font-weight: 600; }
 .sortable-ghost { opacity: .4; }
 .tree.searching .module.collapsed .items { display: block; }
 

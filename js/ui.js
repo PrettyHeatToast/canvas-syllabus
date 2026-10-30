@@ -1,5 +1,6 @@
 // Editor-UI: boomstructuur met selectie, slepen, filters, voorbeeld en instellingen.
 import { state, changed, onChange, allItems, findItem } from './state.js';
+import { renderAttachment } from './attachments.js';
 
 const $ = (s) => document.querySelector(s);
 const el = (tag, cls, attrs = {}) => {
@@ -41,6 +42,20 @@ function bindSettings() {
 }
 
 // ---- Boom ---------------------------------------------------------------
+function attachmentEl(it, a, index) {
+  const row = el('div', 'att-row', { 'data-att': index });
+  const cb = el('input', '', { type: 'checkbox' });
+  const name = el('span', 'title'); name.textContent = '📎 ' + a.name; name.title = a.name;
+  const pick = el('select');
+  pick.append(new Option('Kies een bestand uit de zip…', ''), ...state.zip.files.map((f) => new Option(f.folder ? `${f.name} (${f.folder})` : f.name, f.path)));
+  pick.value = a.path;
+  row.append(cb, name, pick);
+  cb.addEventListener('change', () => { a.included = cb.checked; if (cb.checked) it.included = true; changed(); refresh(); });
+  name.addEventListener('click', () => showAttachment(it, a));
+  pick.addEventListener('change', () => { a.path = pick.value; if (a.path) { a.included = true; it.included = true; } changed(); refresh(); });
+  return row;
+}
+
 function itemEl(it) {
   const row = el('div', 'item', { 'data-uid': it.uid });
   const handle = el('span', 'handle ihandle'); handle.textContent = '⠿';
@@ -51,6 +66,11 @@ function itemEl(it) {
   const up = el('button', 'mini'); up.textContent = '▲'; up.title = 'Omhoog';
   const down = el('button', 'mini'); down.textContent = '▼'; down.title = 'Omlaag';
   row.append(handle, cb, title, meta, up, down);
+  if (state.zip && it.attachments.length) {
+    const list = el('div', 'att-list');
+    list.append(...it.attachments.map((a, i) => attachmentEl(it, a, i)));
+    row.append(list);
+  }
   cb.addEventListener('change', () => { it.included = cb.checked; changed(); refresh(); });
   title.addEventListener('click', () => showPreview(it.uid));
   up.addEventListener('click', () => { const p = row.previousElementSibling; if (p) { p.before(row); syncFromDom(); } });
@@ -123,7 +143,14 @@ export function refresh() {
       ie.querySelector('input').checked = it.included;
       ie.classList.toggle('excluded', !it.included);
       ie.classList.toggle('active', it.uid === activeUid);
-      const hit = !q || it.title.toLowerCase().includes(q);
+      ie.querySelectorAll('.att-row').forEach((row) => {
+        const a = it.attachments[row.dataset.att];
+        const box = row.querySelector('input');
+        box.disabled = !a.path;
+        box.checked = !!a.path && a.included;
+        row.classList.toggle('missing', !a.path);
+      });
+      const hit = !q || it.title.toLowerCase().includes(q) || (state.zip && it.attachments.some((a) => a.name.toLowerCase().includes(q)));
       ie.classList.toggle('filtered-out', !hit);
       if (hit) visible++;
     });
@@ -131,7 +158,13 @@ export function refresh() {
   }
   const items = allItems();
   const on = items.filter((i) => i.included);
-  $('#summary').textContent = `${on.length} van ${items.length} items geselecteerd · ${on.reduce((n, i) => n + i.words, 0).toLocaleString('nl-BE')} woorden · ${on.reduce((n, i) => n + i.images, 0)} afbeeldingen`;
+  let summary = `${on.length} van ${items.length} items geselecteerd · ${on.reduce((n, i) => n + i.words, 0).toLocaleString('nl-BE')} woorden · ${on.reduce((n, i) => n + i.images, 0)} afbeeldingen`;
+  if (state.zip) {
+    const refs = items.flatMap((i) => i.attachments);
+    const open = refs.filter((a) => !a.path).length;
+    summary += ` · ${on.flatMap((i) => i.attachments).filter((a) => a.path && a.included).length} bijlagen in de syllabus` + (open ? ` · ${open} van ${refs.length} verwijzingen zonder bestand` : '');
+  }
+  $('#summary').textContent = summary;
   renderChips();
 }
 
@@ -154,9 +187,11 @@ function chip(label, list, title) {
 // Filterknoppen: eerst types uit de structuur van het item, daarna enkel de emoji aan het begin van de titel.
 function renderChips() {
   const items = allItems();
+  const linked = state.zip ? items.flatMap((i) => i.attachments.filter((a) => a.path)) : [];
   const types = TYPE_CHIPS.map(([key, label]) => chip(label, items.filter((i) => i.type === key), 'Alle items van dit type aan/uit'));
+  if (linked.length) types.push(chip('Bijlagen', linked, 'Alle gekoppelde bijlagen aan/uit'));
   const kinds = new Map();
-  items.forEach((i) => {
+  [...items, ...linked].forEach((i) => {
     if (!i.kind) return;
     if (!kinds.has(i.kind)) kinds.set(i.kind, []);
     kinds.get(i.kind).push(i);
@@ -179,6 +214,26 @@ export function showPreview(uid) {
   box.classList.toggle('show-details', !!state.settings.showDetails);
   switchTab('preview');
   refresh();
+}
+
+async function showAttachment(it, a) {
+  activeUid = it.uid;
+  $('#previewHint').hidden = true;
+  const box = $('#preview');
+  const h = el('h2', 'item-title'); h.textContent = a.name;
+  const body = el('div', 'item-body attachment');
+  body.textContent = a.path ? 'Bijlage omzetten…' : 'Kies eerst een bestand uit de zip.';
+  box.replaceChildren(h, body);
+  switchTab('preview');
+  refresh();
+  if (!a.path) return;
+  try {
+    const nodes = await renderAttachment(state.zip, a.path);
+    if (body.isConnected) body.replaceChildren(...nodes);
+  } catch (err) {
+    console.error(err);
+    if (body.isConnected) body.textContent = 'Kon deze bijlage niet omzetten: ' + err.message;
+  }
 }
 
 function switchTab(name) {

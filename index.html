@@ -21,17 +21,20 @@
     <div class="topbar-actions" id="topActions" hidden>
       <button id="btnSave" title="Selectie en volgorde als JSON-bestand bewaren">Selectie bewaren</button>
       <button id="btnLoad" title="Een eerder bewaarde selectie laden">Selectie laden</button>
+      <button id="btnZip" title="Optioneel: de zip uit de Canvas-export, om gekoppelde bestanden mee op te nemen">Bijlagen (zip)</button>
       <button id="btnNew">Ander bestand</button>
       <button id="btnExport" class="primary">Exporteer PDF</button>
     </div>
     <input type="file" id="selectionFile" accept=".json,application/json" hidden>
+    <input type="file" id="zipFile" accept=".zip,application/zip" hidden>
   </header>
 
   <main id="start" class="start">
     <label id="dropzone" class="dropzone">
-      <input type="file" id="epubFile" accept=".epub,application/epub+zip" hidden>
+      <input type="file" id="epubFile" accept=".epub,.zip,application/epub+zip,application/zip" multiple hidden>
       <strong>Sleep hier een Canvas-EPUB naartoe</strong>
       <span>of klik om een bestand te kiezen</span>
+      <span>Optioneel: voeg ook de zip met bijlagen toe, nu of later</span>
       <small>Alles gebeurt lokaal in je browser. Er wordt niets geüpload.</small>
     </label>
     <p id="loadStatus" class="load-status" hidden></p>

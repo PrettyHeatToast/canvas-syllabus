@@ -1,5 +1,6 @@
 import { loadEpub } from './epub.js';
-import { state, setCourse, serialize, applySaved, changed } from './state.js';
+import { state, setCourse, setZip, serialize, applySaved, changed } from './state.js';
+import { openZip } from './attachments.js';
 import { initEditor, syncSettingsForm } from './ui.js';
 import { renderPaged, clearPaged } from './export.js';
 
@@ -23,11 +24,38 @@ async function openFile(file) {
   }
 }
 
+// De zip met bijlagen is optioneel en kan samen met de EPUB of later nog toegevoegd worden.
+async function openAttachments(file) {
+  const status = $('#loadStatus');
+  const btn = $('#btnZip');
+  status.hidden = false;
+  status.textContent = 'Zip met bijlagen lezen…';
+  btn.disabled = true;
+  try {
+    setZip(await openZip(file));
+    status.textContent = state.course ? '' : `${file.name} gelezen. Kies nu de EPUB.`;
+  } catch (err) {
+    console.error(err);
+    status.textContent = 'Kon de zip niet lezen: ' + err.message;
+    if (state.course) alert(status.textContent);
+  }
+  btn.disabled = false;
+}
+
+async function openFiles(files) {
+  const list = [...files];
+  const epub = list.find((f) => /\.epub$/i.test(f.name));
+  const zip = list.find((f) => /\.zip$/i.test(f.name));
+  if (zip) await openAttachments(zip);
+  if (epub) await openFile(epub);
+  if (!zip && !epub) { $('#loadStatus').hidden = false; $('#loadStatus').textContent = 'Kies een .epub-bestand en eventueel een .zip-bestand.'; }
+}
+
 const dz = $('#dropzone');
-$('#epubFile').addEventListener('change', (e) => e.target.files[0] && openFile(e.target.files[0]));
+$('#epubFile').addEventListener('change', (e) => openFiles(e.target.files));
 ['dragenter', 'dragover'].forEach((ev) => dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.add('over'); }));
 ['dragleave', 'drop'].forEach((ev) => dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.remove('over'); }));
-dz.addEventListener('drop', (e) => e.dataTransfer.files[0] && openFile(e.dataTransfer.files[0]));
+dz.addEventListener('drop', (e) => openFiles(e.dataTransfer.files));
 window.addEventListener('dragover', (e) => e.preventDefault());
 window.addEventListener('drop', (e) => e.preventDefault());
 
@@ -38,6 +66,14 @@ $('#btnNew').addEventListener('click', () => {
   $('#start').hidden = false;
   $('#loadStatus').hidden = true;
   $('#epubFile').value = '';
+  setZip(null);
+});
+
+$('#btnZip').addEventListener('click', () => $('#zipFile').click());
+$('#zipFile').addEventListener('change', (e) => {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (f) openAttachments(f);
 });
 
 // Selectie als JSON bewaren/laden
@@ -71,8 +107,8 @@ $('#btnExport').addEventListener('click', async () => {
   document.body.classList.add('exporting');
   print.disabled = true;
   try {
-    const { pages, ms } = await renderPaged($('#pages'), (m) => { status.textContent = m; });
-    status.textContent = `Klaar: ${pages} pagina’s (${(ms / 1000).toFixed(1)} s)`;
+    const { pages, ms, failed } = await renderPaged($('#pages'), (m) => { status.textContent = m; });
+    status.textContent = `Klaar: ${pages} pagina’s (${(ms / 1000).toFixed(1)} s)` + (failed.length ? ` · ${failed.length} bijlage(n) niet omgezet` : '');
     print.disabled = false;
   } catch (err) {
     console.error(err);

@@ -1,6 +1,7 @@
 // Bouwt het syllabus-document uit de selectie en pagineert het met Paged.js voor Opslaan-als-PDF.
 import { state } from './state.js';
 import { stripEmoji } from './parse.js';
+import { renderAttachment } from './attachments.js';
 
 const escapeCss = (s) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, ' ');
 
@@ -112,6 +113,10 @@ export function buildSyllabus() {
       body.className = 'item-body';
       body.innerHTML = it.html;
       shiftHeadings(body);
+      body.querySelectorAll('.file-ref').forEach((ref) => {
+        const a = it.attachments[ref.dataset.att];
+        if (state.zip && a.included && a.path) { ref.dataset.attPath = a.path; ref.dataset.attName = a.name; }
+      });
       body.querySelectorAll('[id]').forEach((e) => targets.ids.add(e.id));
       bodies.push(body);
       item.append(h2, body);
@@ -121,6 +126,45 @@ export function buildSyllabus() {
   });
   bodies.forEach((b) => fixLinks(b, targets));
   return { root, modules: mods.length, items: mods.reduce((n, m) => n + m.picked.length, 0) };
+}
+
+// Een bijlage komt onder de buitenste alinea, lijst of tabel waarin de verwijzing staat, niet in een li of cel.
+function blockOf(ref) {
+  let block = ref;
+  for (let p = ref.parentElement; p && !p.classList.contains('item-body'); p = p.parentElement) {
+    if (p.matches('p,ul,ol,table')) block = p;
+  }
+  while (block.nextElementSibling?.classList.contains('attachment')) block = block.nextElementSibling;
+  return block;
+}
+
+async function addAttachments(root, onStatus) {
+  const refs = [...root.querySelectorAll('[data-att-path]')];
+  const failed = [];
+  for (const [i, ref] of refs.entries()) {
+    onStatus(`Bijlage ${i + 1} van ${refs.length} omzetten…`);
+    const box = document.createElement('div');
+    box.className = 'attachment';
+    try {
+      box.append(...await renderAttachment(state.zip, ref.dataset.attPath));
+      shiftHeadings(box);
+    } catch (err) {
+      console.error(ref.dataset.attPath, err);
+      const name = ref.dataset.attPath.split('/').pop();
+      failed.push(name);
+      box.innerHTML = '<p class="missing-image"></p>';
+      box.firstChild.textContent = `[bijlage kon niet omgezet worden: ${name}]`;
+    }
+    // Een bestand-item met meerdere bestanden heeft geen tekst ertussen: zonder naam zijn de bijlagen niet uit elkaar te houden.
+    if (!ref.textContent && ref.parentElement.querySelectorAll('.file-ref').length > 1) {
+      const name = document.createElement('p');
+      name.className = 'att-name';
+      name.textContent = ref.dataset.attName;
+      box.prepend(name);
+    }
+    blockOf(ref).after(box);
+  }
+  return failed;
 }
 
 function dynamicCss() {
@@ -156,11 +200,12 @@ export function clearPaged(pagesEl) {
   document.querySelectorAll('style[data-pagedjs-inserted-styles]').forEach((n) => n.remove());
 }
 
-// Rendert de gepagineerde syllabus in pagesEl. Geeft { pages, ms } terug.
+// Rendert de gepagineerde syllabus in pagesEl. Geeft { pages, ms, failed } terug.
 export async function renderPaged(pagesEl, onStatus) {
   clearPaged(pagesEl);
   const { root, items } = buildSyllabus();
   if (!items) throw new Error('Er zijn geen items geselecteerd.');
+  const failed = await addAttachments(root, onStatus);
   onStatus('Afbeeldingen laden…');
   // Paged.js meet de hoogte tijdens het opmaken: alle afbeeldingen moeten eerst geladen zijn.
   await Promise.all([...root.querySelectorAll('img')].map((img) => (img.complete ? null : new Promise((r) => { img.onload = img.onerror = r; }))));
@@ -170,5 +215,5 @@ export async function renderPaged(pagesEl, onStatus) {
   let n = 0;
   previewer.on('page', () => { n++; if (n % 5 === 0 || n < 5) onStatus(`Pagina’s opmaken… (${n})`); });
   const flow = await previewer.preview(root, [{ 'content.css': await contentCss() }, 'css/print.css', { 'dynamic.css': dynamicCss() }], pagesEl);
-  return { pages: flow.total ?? n, ms: Math.round(flow.performance) };
+  return { pages: flow.total ?? n, ms: Math.round(flow.performance), failed };
 }

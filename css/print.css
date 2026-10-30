@@ -27,3 +27,5 @@ h1.module-title { string-set: modtitle content(text); }
 
 .toc a { display: flex; align-items: baseline; border-bottom: 1px dotted #c6c6c6; }
 .toc a::after { content: target-counter(attr(href), page); margin-left: auto; padding-left: 1em; }
+.att-page, .att-slide { break-inside: avoid; }
+.att-name { break-after: avoid; }

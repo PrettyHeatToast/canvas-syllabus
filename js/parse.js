@@ -39,14 +39,32 @@ export function stripEmoji(title) {
 const isPageBreak = (el) => el.tagName === 'DIV' && /page-break/.test(el.getAttribute('style') || '') && !el.textContent.trim() && !el.children.length;
 const isBackLink = (el) => el.tagName === 'P' && /^terug naar/i.test(collapse(el.textContent)) && el.querySelectorAll('a').length >= 1 && el.children.length === el.querySelectorAll('a').length;
 
-async function clean(container, { resolveMedia, stats }) {
-  container.querySelectorAll('script,style,link,meta').forEach((n) => n.remove());
-
-  // De bestanden zelf worden niet meegeleverd: de verwijzing naar de zip weglaten en enkel de bestandsnaam houden.
+// De EPUB bevat de bestanden zelf niet: elke melding wordt een .file-ref met enkel de bestandsnaam, de plek waar de bijlage uit de zip komt.
+function markAttachments(container, attachments) {
   const walker = container.ownerDocument.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+  const notes = [];
   for (let n = walker.nextNode(); n; n = walker.nextNode()) {
-    n.nodeValue = n.nodeValue.replace(FILE_NOTE_INLINE, '$1');
+    if (n.nodeValue.search(FILE_NOTE_INLINE) >= 0) notes.push(n);
   }
+  for (const n of notes) {
+    const parts = [];
+    let last = 0;
+    for (const m of n.nodeValue.matchAll(FILE_NOTE_INLINE)) {
+      const ref = container.ownerDocument.createElement('span');
+      ref.className = 'file-ref';
+      ref.dataset.att = attachments.length;
+      ref.textContent = m[1];
+      attachments.push({ name: m[1], kind: leadingEmoji(m[1]), path: '', included: true });
+      parts.push(n.nodeValue.slice(last, m.index), ref);
+      last = m.index + m[0].length;
+    }
+    n.replaceWith(...parts, n.nodeValue.slice(last));
+  }
+}
+
+async function clean(container, { resolveMedia, stats, attachments }) {
+  container.querySelectorAll('script,style,link,meta').forEach((n) => n.remove());
+  markAttachments(container, attachments);
   [...container.children].filter(isPageBreak).forEach((n) => n.remove());
 
   // "Terug naar …"-navigatie van Canvas weghalen (samen met de hr ervoor).
@@ -143,11 +161,12 @@ export async function parseDocument(src, { file, resolveMedia, stats }) {
   const hdoc = document.implementation.createHTMLDocument('');
   const groups = [];
   let current = null;
-  for (const el of body.children) {
-    if (isItemStart(el)) {
+  for (const el of body.childNodes) {
+    if (el.nodeType === Node.ELEMENT_NODE && isItemStart(el)) {
       current = { id: el.getAttribute('id') || `${fileKey}-${groups.length}`, title: collapse(el.textContent), nodes: [] };
       groups.push(current);
-    } else if (current) {
+    } else if (current && (el.nodeType === Node.ELEMENT_NODE || (el.nodeType === Node.TEXT_NODE && el.nodeValue.trim()))) {
+      // Ook losse tekst: de melding van een bestand-item staat vaak rechtstreeks in de body.
       current.nodes.push(el);
     }
   }
@@ -162,10 +181,15 @@ export async function parseDocument(src, { file, resolveMedia, stats }) {
     const box = hdoc.createElement('div');
     g.nodes.forEach((n) => box.append(hdoc.importNode(n, true)));
     const rawText = collapse(box.textContent);
-    await clean(box, { resolveMedia, stats });
+    const attachments = [];
+    await clean(box, { resolveMedia, stats, attachments });
     const type = itemType(g.title, rawText, box);
-    // Een bestand-item heeft geen eigen inhoud: enkel de titel blijft over.
-    if (type === 'bestand') box.replaceChildren();
+    // Een bestand-item heeft geen eigen inhoud: enkel de titel en een lege plek voor de bijlage blijven over.
+    if (type === 'bestand') {
+      const refs = [...box.querySelectorAll('.file-ref')];
+      refs.forEach((r) => r.replaceChildren());
+      box.replaceChildren(...refs);
+    }
     const hasMedia = !!box.querySelector('img,table,.embed-note');
     const text = collapse(box.textContent);
     // Verwijder afsluitende losse <hr>.
@@ -185,6 +209,7 @@ export async function parseDocument(src, { file, resolveMedia, stats }) {
       html: box.innerHTML,
       words: text ? text.split(' ').length : 0,
       images: box.querySelectorAll('img').length,
+      attachments,
       // Bestanden zitten niet in de EPUB (alleen een melding), lege items bevatten niets.
       included: !empty && type !== 'bestand',
     });
