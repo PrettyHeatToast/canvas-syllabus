@@ -1,5 +1,6 @@
 // Leest een Canvas-EPUB (zip) en zet hem om naar een lijst modules met items.
 import { parseDocument } from './parse.js';
+import { openZipFile } from './zipreader.js';
 
 const MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', svg: 'image/svg+xml', webp: 'image/webp' };
 const norm = (p) => p.normalize('NFC').toLowerCase();
@@ -19,7 +20,7 @@ function resolvePath(fromFile, href) {
 }
 
 export async function loadEpub(file, onProgress = () => {}) {
-  const zip = await JSZip.loadAsync(file);
+  const zip = await openZipFile(file);
   const readText = async (path) => {
     const f = zip.file(path);
     if (!f) throw new Error('Bestand ontbreekt in EPUB: ' + path);
