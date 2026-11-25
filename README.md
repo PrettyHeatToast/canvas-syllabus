@@ -22,6 +22,8 @@ Canvas zet gekoppelde bestanden niet in de ePub maar in een apart zip-bestand. S
 
 Je selectie wordt automatisch bewaard in je browser per cursus. Met **Selectie bewaren / laden** kan je ze als JSON-bestand meenemen, bv. om volgend jaar met een nieuwe export verder te werken (items worden op id of titel teruggevonden).
 
+> Video's in de ePub worden niet ingelezen, dus ook een export van enkele GB met ingesloten video's opent snel.
+
 > Gebruik Chrome of Edge; Paged.js (paginering) werkt het best in Chromium. Laat het tabblad zichtbaar tijdens het opmaken.
 
 ## Hosten op GitHub Pages
@@ -38,9 +40,10 @@ Lokaal testen kan met elke statische server (modules werken niet via `file://`),
 
 | Bestand | Rol |
 | --- | --- |
-| `js/epub.js` | zip openen, OPF lezen, afbeeldingen als blob-URL |
+| `js/zipreader.js` | zip lezen zonder hem volledig te laden (alleen de inhoudstabel en de nodige bestanden), ook boven 2 GB |
+| `js/epub.js` | OPF lezen, hoofdstukken verwerken, afbeeldingen als blob-URL |
 | `js/parse.js` | Canvas-xhtml opsplitsen in modules en items, opschonen |
-| `js/attachments.js` | zip openen, bijlagen koppelen, PDF/Word/PowerPoint omzetten |
+| `js/attachments.js` | bijlagen koppelen, PDF/Word/PowerPoint omzetten |
 | `js/state.js` | selectie, volgorde, instellingen, localStorage/JSON |
 | `js/ui.js` | boom, slepen, filters, voorbeeld, instellingen |
 | `js/export.js` | syllabus-document bouwen en paginering met Paged.js |

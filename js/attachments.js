@@ -1,5 +1,6 @@
 // Bijlagen uit de Canvas-zip: koppelen aan de verwijzingen in de EPUB en omzetten naar inhoud voor de syllabus.
 import { stripEmoji } from './parse.js';
+import { openZipFile } from './zipreader.js';
 
 // pptx-preview is gesloten software met beperkingen op herpubliceren en staat daarom niet in vendor/: vaste versie via CDN, met hashcontrole.
 const PPTX_LIB = 'https://cdn.jsdelivr.net/npm/pptx-preview@1.0.7/dist/pptx-preview.umd.js';
@@ -96,7 +97,7 @@ function decodeName(s) {
 const matchKey = (name) => stripEmoji(name).normalize('NFC').toLowerCase();
 
 export async function openZip(file) {
-  const zip = await JSZip.loadAsync(file);
+  const zip = await openZipFile(file);
   const files = [];
   zip.forEach((path, entry) => {
     const ext = path.split('.').pop().toLowerCase();
